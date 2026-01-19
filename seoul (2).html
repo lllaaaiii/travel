@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Seoul Snow Trip 2026</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { 
+            font-family: 'Varela Round', 'Noto Sans TC', sans-serif; 
+            background-color: #F0F9FF; /* Sky-50 */
+            color: #334155; /* Slate-700 */
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* UI 元件樣式 */
+        .app-icon-btn {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 5px rgba(186, 230, 253, 0.4);
+            transition: all 0.2s;
+            color: #7DD3FC;
+        }
+        .app-icon-btn.active {
+            background: #38BDF8;
+            color: white;
+            box-shadow: 0 4px 10px rgba(56, 189, 248, 0.4);
+        }
+        
+        .day-card { border-radius: 20px; transition: all 0.3s; }
+        .day-card.active {
+            background: white; border: 2px solid #7DD3FC;
+            box-shadow: 0 4px 12px rgba(186, 230, 253, 0.5); transform: translateY(-2px);
+        }
+        .day-card.inactive { color: #94A3B8; }
+
+        .ticket-card { background: white; border: 2px dashed #BAE6FD; border-radius: 24px; }
+        .spot-card { background: white; border-radius: 24px; box-shadow: 0 4px 15px rgba(186, 230, 253, 0.3); border: 1px solid white; }
+        .action-btn { background: #F0F9FF; color: #0284C7; border-radius: 12px; font-weight: 600; font-size: 0.8rem; }
+        
+        .category-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230ea5e9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1em; padding-right: 2rem;
+        }
+
+        .currency-select { appearance: none; text-align: right; direction: rtl; }
+        .list-enter-active, .list-leave-active { transition: all 0.4s ease; }
+        .list-enter-from, .list-leave-to { opacity: 0; transform: translateY(20px); }
+        .sortable-ghost { opacity: 0.4; background: #E0F2FE; }
+        .sortable-drag { opacity: 0.9; transform: scale(1.02); }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <div id="app" class="max-w-md mx-auto min-h-screen relative flex flex-col pb-6">
+
+        <header class="pt-8 px-5 pb-2 flex justify-between items-start">
+            <div>
+                <h1 class="text-2xl font-bold text-sky-500 tracking-tight">Seoul Go!</h1>
+                <div class="h-1.5 w-12 bg-sky-200 rounded-full mt-1"></div>
+            </div>
+            
+            <div class="flex space-x-2">
+                <button @click="currentTab = 'itinerary'" :class="{'active': currentTab === 'itinerary'}" class="app-icon-btn w-10 h-10 flex items-center justify-center text-lg"><i class="not-italic">📋</i></button>
+                <button @click="currentTab = 'map'" :class="{'active': currentTab === 'map'}" class="app-icon-btn w-10 h-10 flex items-center justify-center text-lg"><i class="not-italic">🗺️</i></button>
+                <button @click="currentTab = 'ledger'" :class="{'active': currentTab === 'ledger'}" class="app-icon-btn w-10 h-10 flex items-center justify-center text-lg"><i class="not-italic">💰</i></button>
+                <button @click="showShoppingModal = true" class="app-icon-btn w-10 h-10 flex items-center justify-center text-lg relative">
+                    <i class="not-italic">🛍️</i>
+                    <span v-if="totalShoppingCount > 0" class="absolute -top-1 -right-1 bg-red-400 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">{{ totalShoppingCount }}</span>
+                </button>
+            </div>
+        </header>
+
+        <div v-if="currentTab === 'itinerary'" class="px-5 mt-4 overflow-x-auto hide-scrollbar flex space-x-3 pb-4">
+            <button @click="activeDay = -1" class="day-card flex-shrink-0 w-16 h-20 flex flex-col items-center justify-center" :class="activeDay === -1 ? 'active text-sky-600' : 'inactive bg-white/50'"><span class="text-xs font-bold uppercase tracking-widest">PRE</span><span class="text-xl">📝</span></button>
+            <button v-for="(day, index) in days" :key="index" @click="activeDay = index" class="day-card flex-shrink-0 w-16 h-20 flex flex-col items-center justify-center" :class="activeDay === index ? 'active text-sky-600' : 'inactive bg-white/50'"><span class="text-[10px] font-bold uppercase text-slate-400 mb-0.5">DAY</span><span class="text-xl font-bold font-sans">{{ index + 1 }}</span><span class="text-[9px] font-medium mt-1 text-slate-400">{{ day.dateStr }}</span></button>
+        </div>
+
+        <main class="flex-1 px-5 space-y-5 overflow-y-auto hide-scrollbar pb-24 mt-2">
+            <transition name="fade" mode="out-in">
+                
+                <div v-if="currentTab === 'itinerary'" key="itinerary" class="space-y-5">
+                    <div v-if="activeDay === -1" class="space-y-3">
+                        <div class="bg-white rounded-3xl p-6 shadow-sm border border-sky-100 text-center">
+                            <h2 class="text-lg font-bold text-sky-500 mb-4">行前準備</h2>
+                            <div class="space-y-3 text-left">
+                                <div v-for="(todo, tIdx) in preTripTodos" :key="tIdx" class="flex items-center space-x-3 p-3 bg-slate-50 rounded-xl">
+                                    <input type="checkbox" v-model="todo.done" class="w-5 h-5 text-sky-400 rounded">
+                                    <span :class="{'line-through text-gray-400': todo.done}" class="text-sm">{{ todo.text }}</span>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex space-x-2"><input v-model="newTodo" placeholder="新增事項..." class="flex-1 bg-slate-100 rounded-lg px-3 py-2 text-sm outline-none"><button @click="addTodo" class="bg-sky-400 text-white px-4 rounded-lg">+</button></div>
+                        </div>
+                    </div>
+                    <div v-if="activeDay >= 0" id="itinerary-list" class="space-y-4">
+                        <div v-if="activeDay === 0" class="ticket-card p-5 relative">
+                            <span class="absolute top-4 left-5 bg-yellow-100 text-yellow-600 text-[10px] px-2 py-0.5 rounded font-bold">去程</span>
+                            <div class="flex justify-between items-center mt-4 mb-2 px-2">
+                                <div class="text-center"><div class="text-3xl font-bold text-slate-700">TPE</div><div class="text-xs text-slate-400 mt-1 bg-slate-100 px-2 py-0.5 rounded-full">10:00</div></div>
+                                <div class="flex flex-col items-center flex-1 px-4"><span class="text-[9px] text-yellow-400 font-bold tracking-widest mb-1">TPE → ICN</span><div class="w-full h-0.5 bg-slate-200 relative flex justify-center items-center"><span class="bg-white p-1 text-yellow-400 text-lg">✈️</span></div><span class="text-[10px] text-slate-400 mt-1">KE 186</span></div>
+                                <div class="text-center"><div class="text-3xl font-bold text-slate-700">ICN</div><div class="text-xs text-slate-400 mt-1 bg-slate-100 px-2 py-0.5 rounded-full">13:30</div></div>
+                            </div>
+                        </div>
+                        <div v-for="(spot, idx) in currentItinerary" :key="spot.id" :data-id="spot.id" class="spot-card p-4 relative group">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-3 flex-1">
+                                    <div class="handle text-slate-300 cursor-move py-1 px-1 hover:text-sky-400">⋮⋮</div>
+                                    <div class="relative"><select v-model="spot.category" class="category-select bg-sky-50 text-sky-600 text-xs font-bold py-1.5 pl-3 pr-8 rounded-full outline-none border border-transparent focus:border-sky-300 cursor-pointer"><option value="景點">🎡 景點</option><option value="交通">🚇 交通</option><option value="航班">✈️ 航班</option><option value="美食">🍜 美食</option><option value="購物">🛍️ 購物</option><option value="其他">🔖 其他</option></select></div>
+                                </div>
+                                <button @click="removeSpot(idx)" class="text-slate-200 hover:text-red-400 text-lg px-2">×</button>
+                            </div>
+                            <div class="space-y-2 pl-1"><input v-model="spot.location" class="text-lg font-bold text-slate-700 w-full outline-none placeholder-slate-300 bg-transparent" placeholder="輸入地點名稱..."><input v-model="spot.note" class="text-xs text-slate-400 w-full outline-none placeholder-slate-200 bg-transparent" placeholder="✎ 添加備註..."></div>
+                            <div class="flex space-x-3 mt-4 pt-3 border-t border-slate-50"><button class="action-btn flex-1 py-2 flex items-center justify-center space-x-1 hover:bg-sky-100 transition-colors"><span>🗺️</span> <span>地圖</span></button><button class="action-btn flex-1 py-2 flex items-center justify-center space-x-1 bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors"><span>📍</span> <span>導航</span></button></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-else-if="currentTab === 'map'" key="map" class="h-[75vh] rounded-3xl overflow-hidden border-4 border-white shadow-lg relative"><div id="map" class="h-full w-full bg-slate-100"></div></div>
+
+                <div v-else-if="currentTab === 'ledger'" key="ledger" class="space-y-6">
+                    <div class="bg-white rounded-3xl p-5 shadow-sm border border-sky-100">
+                        <div class="flex justify-between items-center mb-3"><h2 class="text-sm font-bold text-slate-500">成員設定</h2><span class="text-[10px] text-sky-400 bg-sky-50 px-2 py-1 rounded-full">點擊頭像換照</span></div>
+                        <div class="flex justify-between"><div v-for="m in members" :key="m.id" class="flex flex-col items-center w-14 group"><div @click="triggerUpload(m.id)" class="w-12 h-12 rounded-full border-2 border-slate-100 overflow-hidden cursor-pointer shadow-sm relative group-hover:border-sky-300 transition-all"><img :src="m.photo" class="w-full h-full object-cover"><div class="absolute inset-0 bg-black/20 hidden group-hover:flex items-center justify-center text-white text-[8px]">更換</div><input :id="'file-'+m.id" type="file" class="hidden" @change="e => updatePhoto(e, m.id)"></div><input v-model="m.name" class="w-full text-center text-[10px] mt-1 text-slate-600 bg-transparent outline-none border-b border-transparent focus:border-sky-300"></div></div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-end px-2"><h2 class="text-sky-500 font-bold tracking-widest">EXPENSE LIST</h2><span class="text-[10px] text-slate-400">依日期排序 (最新在前)</span></div>
+                        <transition-group name="list" tag="div" class="space-y-4">
+                            <div class="bg-white rounded-3xl p-5 shadow-sm border border-white space-y-4" v-for="exp in sortedExpenses" :key="exp.id">
+                                <div class="flex items-center space-x-3"><select v-model="exp.date" class="bg-sky-50 text-sky-600 text-[10px] font-bold py-1 px-2 rounded-lg outline-none border border-transparent focus:border-sky-300"><option v-for="d in days" :value="d.full">{{ d.dateStr }}</option></select><input v-model="exp.item" class="flex-1 font-bold text-slate-700 outline-none border-b border-transparent focus:border-slate-200 transition-colors" placeholder="請輸入支出項目..."></div>
+                                <div class="flex items-baseline justify-end space-x-2 py-2"><select v-model="exp.currency" class="text-2xl font-black text-slate-300 bg-transparent outline-none currency-select cursor-pointer hover:text-sky-400 transition-colors"><option value="KRW">KRW</option><option value="TWD">TWD</option></select><input v-model.number="exp.amount" type="number" class="w-48 text-right text-4xl font-black text-sky-500 outline-none placeholder-sky-100 bg-transparent" placeholder="0"></div>
+                                <div class="flex gap-2 justify-end pt-2 border-t border-slate-50"><div v-for="m in members" :key="m.id" @click="toggleParticipant(exp, m.id)" class="w-8 h-8 rounded-full border-2 overflow-hidden transition-all cursor-pointer relative" :class="exp.participants.includes(m.id) ? 'border-sky-400 opacity-100 scale-105 shadow-md' : 'border-slate-100 opacity-30 grayscale scale-95'"><img :src="m.photo" class="w-full h-full object-cover"><div v-if="!exp.participants.includes(m.id)" class="absolute inset-0 bg-white/50"></div></div></div>
+                            </div>
+                        </transition-group>
+                    </div>
+                    <button @click="addExpense" class="w-full py-4 rounded-2xl border-2 border-dashed border-sky-200 text-sky-400 font-bold hover:bg-sky-50 transition-colors mb-6">+ 新增一筆支出</button>
+                    <div class="h-10"></div>
+                </div>
+            </transition>
+        </main>
+
+        <div v-if="currentTab === 'itinerary' && activeDay >= 0" class="fixed bottom-6 left-0 right-0 px-5 z-40 max-w-md mx-auto"><button @click="addSpot" class="w-full bg-amber-400 hover:bg-amber-300 text-white font-bold py-4 rounded-2xl shadow-lg shadow-amber-200/50 flex items-center justify-center space-x-2 text-lg transition-transform active:scale-95"><span class="bg-white/20 rounded-full w-6 h-6 flex items-center justify-center text-sm">＋</span><span>新增一個行程</span></button></div>
+
+        <div v-if="showShoppingModal" class="fixed inset-0 z-50 bg-sky-900/30 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="bg-white w-full max-w-xs rounded-[2rem] p-6 shadow-2xl flex flex-col max-h-[70vh]">
+                
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-lg text-slate-700 tracking-wide">SHOPPING LIST</h3>
+                    <button @click="showShoppingModal = false" class="text-slate-300 text-xl">✕</button>
+                </div>
+
+                <div class="flex justify-between items-center mb-4 pb-4 border-b border-slate-50 overflow-x-auto hide-scrollbar space-x-2">
+                    <div v-for="m in members" :key="m.id" 
+                         @click="activeShopMember = m.id"
+                         class="flex flex-col items-center cursor-pointer transition-all flex-shrink-0 relative">
+                        <div class="w-12 h-12 rounded-full border-2 overflow-hidden transition-all"
+                             :class="activeShopMember === m.id ? 'border-sky-400 scale-110 shadow-md ring-2 ring-sky-100' : 'border-slate-100 opacity-60 grayscale'">
+                            <img :src="m.photo" class="w-full h-full object-cover">
+                        </div>
+                        <div v-if="getMemberPendingCount(m.id) > 0" class="absolute top-0 right-0 bg-red-400 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center border-2 border-white">
+                            {{ getMemberPendingCount(m.id) }}
+                        </div>
+                        <span class="text-[9px] mt-1 font-bold" :class="activeShopMember === m.id ? 'text-sky-500' : 'text-slate-300'">{{ m.name }}</span>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto space-y-2 mb-4 hide-scrollbar">
+                    <div v-if="currentMemberShoppingList.length === 0" class="text-center py-8 text-slate-300 text-xs">
+                        尚無 {{ members.find(m => m.id === activeShopMember)?.name }} 的清單
+                    </div>
+                    <div v-for="(item, idx) in currentMemberShoppingList" :key="item.id" class="flex items-center space-x-3 group">
+                        <input type="checkbox" v-model="item.done" class="rounded text-sky-400 focus:ring-sky-300 w-5 h-5 border-slate-300">
+                        <input v-model="item.text" class="flex-1 outline-none text-sm border-b border-transparent focus:border-slate-200 py-1 transition-colors bg-transparent text-slate-600 font-medium" :class="{'line-through text-slate-300': item.done}">
+                        <button @click="removeShopItem(item.id)" class="text-red-200 hover:text-red-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity">×</button>
+                    </div>
+                </div>
+
+                <div class="flex space-x-2 mt-auto">
+                    <input v-model="newShopItem" :placeholder="`幫 ${members.find(m => m.id === activeShopMember)?.name} 新增...`" 
+                           @keyup.enter="addShopItem"
+                           class="flex-1 bg-slate-50 px-4 py-3 rounded-2xl text-sm outline-none border border-transparent focus:border-sky-200 transition-all">
+                    <button @click="addShopItem" class="bg-sky-400 text-white px-4 rounded-2xl font-bold shadow-lg shadow-sky-200/50 active:scale-95 transition-transform">＋</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed, watch, nextTick, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const currentTab = ref('itinerary');
+                const activeDay = ref(0);
+                const showShoppingModal = ref(false);
+                const activeShopMember = ref(1); // 預設顯示第一位成員的清單
+
+                // 日期與行程資料
+                const days = [{ dateStr: '1/30', full: '2026-01-30' }, { dateStr: '1/31', full: '2026-01-31' }, { dateStr: '2/01', full: '2026-02-01' }, { dateStr: '2/02', full: '2026-02-02' }, { dateStr: '2/03', full: '2026-02-03' }, { dateStr: '2/04', full: '2026-02-04' }, { dateStr: '2/05', full: '2026-02-05' }];
+                const itineraries = ref({ 0: [{ id: 101, category: '交通', location: '機場快線 AREX', note: '直達首爾站 (43min)' }, { id: 102, category: '景點', location: '明洞商圈', note: '換錢所匯率最好' }] });
+                const currentItinerary = computed(() => { if (!itineraries.value[activeDay.value]) itineraries.value[activeDay.value] = []; return itineraries.value[activeDay.value]; });
+                const addSpot = () => { const id = Date.now(); currentItinerary.value.push({ id, category: '景點', location: '', note: '' }); nextTick(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })); };
+                const removeSpot = (idx) => currentItinerary.value.splice(idx, 1);
+                const initSortable = () => { const el = document.getElementById('itinerary-list'); if(el) Sortable.create(el, { handle: '.handle', animation: 150, ghostClass: 'sortable-ghost', dragClass: 'sortable-drag' }); };
+
+                // 行前準備
+                const preTripTodos = ref([{ text:'購買 T-Money 卡', done:false }]);
+                const newTodo = ref('');
+                const addTodo = () => { if(newTodo.value) { preTripTodos.value.push({text:newTodo.value, done:false}); newTodo.value=''; }};
+
+                // --- 購物清單 (個人化) ---
+                // 結構改為包含 ownerId
+                const shoppingList = ref([
+                    { id: 1, text: 'Olive Young 面膜', done: false, ownerId: 1 },
+                    { id: 2, text: 'Gentle Monster 墨鏡', done: false, ownerId: 1 },
+                    { id: 3, text: '泡麵 (辛拉麵)', done: false, ownerId: 2 }
+                ]);
+                const newShopItem = ref('');
+
+                // 取得當前選定成員的清單
+                const currentMemberShoppingList = computed(() => {
+                    return shoppingList.value.filter(item => item.ownerId === activeShopMember.value);
+                });
+
+                // 新增項目 (自動帶入當前 ownerId)
+                const addShopItem = () => {
+                    if (newShopItem.value) {
+                        shoppingList.value.push({
+                            id: Date.now(),
+                            text: newShopItem.value,
+                            done: false,
+                            ownerId: activeShopMember.value
+                        });
+                        newShopItem.value = '';
+                    }
+                };
+
+                const removeShopItem = (id) => {
+                    const idx = shoppingList.value.findIndex(i => i.id === id);
+                    if (idx > -1) shoppingList.value.splice(idx, 1);
+                };
+
+                // 計算某成員未完成數量
+                const getMemberPendingCount = (memberId) => {
+                    return shoppingList.value.filter(i => i.ownerId === memberId && !i.done).length;
+                };
+
+                // 計算所有人總共未完成數量 (給主畫面紅點用)
+                const totalShoppingCount = computed(() => shoppingList.value.filter(i => !i.done).length);
+
+
+                // --- 記帳與成員 ---
+                const members = ref([
+                    { id: 1, name: '我', photo: 'https://i.pravatar.cc/150?u=1' },
+                    { id: 2, name: '旅伴A', photo: 'https://i.pravatar.cc/150?u=2' },
+                    { id: 3, name: '旅伴B', photo: 'https://i.pravatar.cc/150?u=3' },
+                    { id: 4, name: '旅伴C', photo: 'https://i.pravatar.cc/150?u=4' },
+                    { id: 5, name: '旅伴D', photo: 'https://i.pravatar.cc/150?u=5' }
+                ]);
+                const triggerUpload = (id) => document.getElementById(`file-${id}`).click();
+                const updatePhoto = (e, id) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (evt) => { const m = members.value.find(x => x.id === id); if(m) m.photo = evt.target.result; }; reader.readAsDataURL(file); } };
+                const expenses = ref([{ id: 1700000000000, date: '2026-01-30', item: '第一餐烤肉', amount: 85000, currency: 'KRW', participants: [1,2,3,4,5] }]);
+                const sortedExpenses = computed(() => { return [...expenses.value].sort((a, b) => { if (a.date < b.date) return 1; if (a.date > b.date) return -1; return b.id - a.id; }); });
+                const addExpense = () => { expenses.value.push({ id: Date.now(), date: days[0].full, item: '', amount: null, currency: 'KRW', participants: [1, 2, 3, 4, 5] }); };
+                const toggleParticipant = (exp, uid) => { const idx = exp.participants.indexOf(uid); idx > -1 ? exp.participants.splice(idx,1) : exp.participants.push(uid); };
+
+                // 地圖
+                let map;
+                const initMap = () => { if(map) return; map = L.map('map').setView([37.5665, 126.9780], 13); L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map); };
+
+                watch(currentTab, (val) => { if(val === 'itinerary') nextTick(initSortable); if(val === 'map') nextTick(initMap); });
+                watch(activeDay, () => { if(currentTab.value === 'itinerary') nextTick(initSortable); });
+                onMounted(() => initSortable());
+
+                return {
+                    currentTab, activeDay, days, itineraries, currentItinerary,
+                    preTripTodos, newTodo, addTodo,
+                    // 購物清單相關
+                    showShoppingModal, activeShopMember, currentMemberShoppingList, newShopItem, addShopItem, removeShopItem, getMemberPendingCount, totalShoppingCount,
+                    addSpot, removeSpot, members, triggerUpload, updatePhoto, expenses, sortedExpenses, addExpense, toggleParticipant
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
