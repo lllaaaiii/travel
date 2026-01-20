@@ -4,14 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Seoul Snow Trip 2026</title>
-
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Seoul 2026">
-    <meta name="theme-color" content="#F0F9FF">
-    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlNlb3VsIFNub3cgVHJpcCAyMDI2IiwKICAic2hvcnRfbmFtZSI6ICJTZW91bDIwMjYiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29xvciI6ICIjRjBGOUZGIiwKICAidGhlbWVfY29xvciI6ICIjRjBGOUZGIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiaHR0cHM6Ly9jZG4taWNvbnMtcG5nLmZsYXRpY29uLmNvbS81MTIvMzE3OS8zMTc5MDY4LnBuZyIsCiAgICAgICJzaXplcyI6ICIxOTJ4MTkyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIgogICAgfQogIF0KfQ==">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3179/3179068.png">
-    
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -28,7 +20,12 @@
         }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* Day Card */
+        .app-icon-btn {
+            background: white; border-radius: 16px;
+            box-shadow: 0 2px 5px rgba(186, 230, 253, 0.4);
+            transition: all 0.2s; color: #7DD3FC;
+        }
+        
         .day-card { border-radius: 20px; transition: all 0.3s; }
         .day-card.active {
             background: white; border: 2px solid #38BDF8;
@@ -39,42 +36,19 @@
 
         .ticket-card { background: white; border: 2px dashed #BAE6FD; border-radius: 24px; }
         .spot-card { background: white; border-radius: 24px; box-shadow: 0 4px 15px rgba(186, 230, 253, 0.3); border: 1px solid white; }
-        .action-btn { background: #F0F9FF; color: #0284C7; border-radius: 12px; font-weight: 600; font-size: 0.8rem; }
-        
-        .category-select {
-            appearance: none; 
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230284C7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat; 
-            background-position: right 0.5rem center; 
-            background-size: 0.8em; 
-            padding-right: 1.5rem;
-        }
-        
-        .currency-select-styled {
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 0.3rem center;
-            background-size: 0.7em;
-            padding-right: 1.2rem;
-            text-align: center;
-        }
+        .expense-card { background: white; border-radius: 20px; box-shadow: 0 2px 8px rgba(186, 230, 253, 0.2); border: 1px solid white; transition: transform 0.2s; }
+        .expense-card:active { transform: scale(0.98); }
 
         .settlement-card {
-            background: white;
-            border: 2px dashed #7DD3FC;
-            color: #334155;
-            border-radius: 24px;
-        }
-        .exchange-rate-input {
-            background: #F0F9FF;
-            border: 1px solid #BAE6FD;
-            color: #0284C7; text-align: center; border-radius: 8px;
+            background: white; border: 2px dashed #7DD3FC; color: #334155; border-radius: 24px;
         }
         
-        .img-modal {
-            position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center;
-        }
+        .info-pill { height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; }
+        .category-select { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230284C7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 0.8em; padding-right: 1.5rem; }
+        
+        .modal-overlay { position: fixed; inset: 0; z-index: 100; background-color: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        .modal-content { background: white; width: 100%; max-width: 360px; border-radius: 24px; padding: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .img-modal { position: fixed; inset: 0; z-index: 110; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body class="bg-slate-50">
@@ -88,7 +62,7 @@
                 </div>
                 <p class="text-[10px] text-slate-400 mt-1.5 font-medium tracking-wider pl-1">2026.01.30 - 02.05</p>
             </div>
-            </header>
+        </header>
 
         <div v-if="currentTab === 'itinerary'" class="px-5 mt-4 overflow-x-auto hide-scrollbar flex space-x-3 pb-8 pt-4">
             <button @click="activeDay = -1" class="day-card flex-shrink-0 w-16 h-20 flex flex-col items-center justify-center" :class="activeDay === -1 ? 'active text-sky-600' : 'inactive bg-white/50'"><span class="text-xs font-bold uppercase tracking-widest">PRE</span><span class="text-xl">📝</span></button>
@@ -101,68 +75,51 @@
                 <div v-if="currentTab === 'itinerary'" key="itinerary" class="space-y-5 pb-10">
                     <div v-if="activeDay === -1" class="space-y-3">
                         <div class="bg-white rounded-3xl p-6 shadow-sm border border-sky-100 text-center">
-                            <h2 class="text-lg font-bold text-sky-500 mb-4">行前準備 Check</h2>
-                            <div class="space-y-4 text-left">
-                                <div v-for="(todo, tIdx) in preTripTodos" :key="todo.id" class="bg-slate-50 rounded-xl p-3">
-                                    <div class="flex justify-between items-center mb-2">
-                                        <span class="text-sm font-bold text-slate-600">{{ todo.text }}</span>
-                                        <button @click="removeTodo(tIdx)" class="text-slate-300 text-xs">✕</button>
-                                    </div>
-                                    <div class="flex justify-between items-center bg-white rounded-lg p-2 border border-slate-100">
-                                        <div v-for="m in members" :key="m.id" @click="toggleTodoStatus(todo, m.id)" class="flex flex-col items-center cursor-pointer group">
-                                            <div class="w-8 h-8 rounded-full border-2 transition-all overflow-hidden" :class="todo.completedBy.includes(m.id) ? 'border-green-400 ring-2 ring-green-100 opacity-100' : 'border-slate-100 opacity-30 grayscale'"><img :src="m.photo" class="w-full h-full object-cover"></div>
-                                            <div class="h-3 mt-1"><span v-if="todo.completedBy.includes(m.id)" class="text-[10px] text-green-500 font-bold">✓</span></div>
-                                        </div>
+                            <h2 class="text-lg font-bold text-sky-500 mb-4 text-center">行前準備 Check</h2>
+                            <div class="space-y-4">
+                                <div v-for="(todo, tIdx) in preTripTodos" :key="todo.id" class="bg-slate-50 rounded-xl p-3 flex justify-between items-center">
+                                    <span class="text-sm font-bold text-slate-600">{{ todo.text }}</span>
+                                    <div class="flex -space-x-2">
+                                        <div v-for="m in members" :key="m.id" @click="toggleTodoStatus(todo, m.id)" class="w-8 h-8 rounded-full border-2 transition-all overflow-hidden cursor-pointer" :class="todo.completedBy.includes(m.id) ? 'border-green-400 opacity-100 z-10' : 'border-slate-100 opacity-30 grayscale'"><img :src="m.photo" class="w-full h-full object-cover"></div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="mt-6 flex space-x-2"><input v-model="newTodo" placeholder="新增事項..." class="flex-1 bg-slate-100 rounded-lg px-3 py-3 text-sm outline-none border border-transparent focus:border-sky-300 transition-all"><button @click="addTodo" class="bg-sky-400 text-white px-4 rounded-lg font-bold shadow-md active:scale-95 transition-transform">＋</button></div>
+                            <div class="mt-6 flex space-x-2"><input v-model="newTodo" placeholder="新增事項..." class="flex-1 bg-slate-100 rounded-lg px-3 py-3 text-sm outline-none border border-transparent focus:border-sky-300 transition-all"><button @click="addTodo" class="bg-sky-400 text-white px-4 rounded-lg font-bold shadow-md">＋</button></div>
                         </div>
                     </div>
                     
                     <div v-if="activeDay >= 0" id="itinerary-list" class="space-y-4">
                         <div v-if="activeDay === 0" class="ticket-card p-5 relative">
-                            <span class="absolute top-4 left-5 bg-sky-100 text-sky-600 text-[10px] px-3 py-1 rounded-full font-bold">去程</span>
-                            <span class="absolute top-4 right-5 text-[10px] text-sky-500 font-bold tracking-widest">TPE → ICN</span>
+                            <span class="absolute top-4 left-5 bg-sky-100 text-sky-600 text-[10px] px-3 py-1 rounded-full font-bold">去程</span><span class="absolute top-4 right-5 text-[10px] text-sky-500 font-bold tracking-widest">TPE → ICN</span>
                             <div class="flex justify-between items-center mt-8 mb-2 px-2">
                                 <div class="text-center"><div class="text-3xl font-black text-slate-700 tracking-wider">TPE</div><div class="text-xs text-slate-500 mt-2 bg-slate-100 px-3 py-1 rounded-full font-medium">20:00</div></div>
-                                <div class="flex flex-col items-center flex-1 px-6 relative">
-                                    <div class="mb-1 z-10"><svg class="w-6 h-6 text-sky-400" fill="currentColor" viewBox="0 0 24 24"><path d="M21,16V14L13,9V3.5A1.5,1.5 0 0,0 11.5,2A1.5,1.5 0 0,0 10,3.5V9L2,14V16L10,13.5V19L8,20.5V22L11.5,21L15,22V20.5L13,19V13.5L21,16Z" transform="rotate(90 12 12)"/></svg></div>
-                                    <div class="w-full h-0.5 bg-sky-200 relative flex items-center justify-between"><div class="w-2 h-2 bg-sky-400 rounded-full -ml-1"></div><div class="w-2 h-2 bg-sky-400 rounded-full -mr-1"></div></div>
-                                    <span class="text-[10px] text-slate-400 mt-2 font-medium">IT 602</span>
-                                </div>
+                                <div class="flex flex-col items-center flex-1 px-6 relative"><div class="mb-1 z-10"><svg class="w-6 h-6 text-sky-400" fill="currentColor" viewBox="0 0 24 24"><path d="M21,16V14L13,9V3.5A1.5,1.5 0 0,0 11.5,2A1.5,1.5 0 0,0 10,3.5V9L2,14V16L10,13.5V19L8,20.5V22L11.5,21L15,22V20.5L13,19V13.5L21,16Z" transform="rotate(90 12 12)"/></svg></div><div class="w-full h-0.5 bg-sky-200 relative flex items-center justify-between"><div class="w-2 h-2 bg-sky-400 rounded-full -ml-1"></div><div class="w-2 h-2 bg-sky-400 rounded-full -mr-1"></div></div><span class="text-[10px] text-slate-400 mt-2 font-medium">IT 602</span></div>
                                 <div class="text-center"><div class="text-3xl font-black text-slate-700 tracking-wider">ICN</div><div class="text-xs text-slate-500 mt-2 bg-slate-100 px-3 py-1 rounded-full font-medium">23:30</div></div>
                             </div>
                         </div>
-
                         <div v-if="activeDay === days.length - 1" class="ticket-card p-5 relative">
-                            <span class="absolute top-4 left-5 bg-pink-100 text-pink-600 text-[10px] px-3 py-1 rounded-full font-bold">回程</span>
-                            <span class="absolute top-4 right-5 text-[10px] text-sky-500 font-bold tracking-widest">ICN → TPE</span>
+                            <span class="absolute top-4 left-5 bg-pink-100 text-pink-600 text-[10px] px-3 py-1 rounded-full font-bold">回程</span><span class="absolute top-4 right-5 text-[10px] text-sky-500 font-bold tracking-widest">ICN → TPE</span>
                             <div class="flex justify-between items-center mt-8 mb-2 px-2">
                                 <div class="text-center"><div class="text-3xl font-black text-slate-700 tracking-wider">ICN</div><div class="text-xs text-slate-500 mt-2 bg-slate-100 px-3 py-1 rounded-full font-medium">16:20</div></div>
-                                <div class="flex flex-col items-center flex-1 px-6 relative">
-                                    <div class="mb-1 z-10"><svg class="w-6 h-6 text-sky-400" fill="currentColor" viewBox="0 0 24 24"><path d="M21,16V14L13,9V3.5A1.5,1.5 0 0,0 11.5,2A1.5,1.5 0 0,0 10,3.5V9L2,14V16L10,13.5V19L8,20.5V22L11.5,21L15,22V20.5L13,19V13.5L21,16Z" transform="rotate(90 12 12)"/></svg></div>
-                                    <div class="w-full h-0.5 bg-sky-200 relative flex items-center justify-between"><div class="w-2 h-2 bg-sky-400 rounded-full -ml-1"></div><div class="w-2 h-2 bg-sky-400 rounded-full -mr-1"></div></div>
-                                    <span class="text-[10px] text-slate-400 mt-2 font-medium">KE 2027</span>
-                                </div>
+                                <div class="flex flex-col items-center flex-1 px-6 relative"><div class="mb-1 z-10"><svg class="w-6 h-6 text-sky-400" fill="currentColor" viewBox="0 0 24 24"><path d="M21,16V14L13,9V3.5A1.5,1.5 0 0,0 11.5,2A1.5,1.5 0 0,0 10,3.5V9L2,14V16L10,13.5V19L8,20.5V22L11.5,21L15,22V20.5L13,19V13.5L21,16Z" transform="rotate(90 12 12)"/></svg></div><div class="w-full h-0.5 bg-sky-200 relative flex items-center justify-between"><div class="w-2 h-2 bg-sky-400 rounded-full -ml-1"></div><div class="w-2 h-2 bg-sky-400 rounded-full -mr-1"></div></div><span class="text-[10px] text-slate-400 mt-2 font-medium">KE 2027</span></div>
                                 <div class="text-center"><div class="text-3xl font-black text-slate-700 tracking-wider">TPE</div><div class="text-xs text-slate-500 mt-2 bg-slate-100 px-3 py-1 rounded-full font-medium">18:00</div></div>
                             </div>
                         </div>
 
-                        <button @click="addSpot" class="w-full bg-amber-400 hover:bg-amber-300 text-white font-bold py-3 rounded-2xl shadow-sm flex items-center justify-center space-x-2 text-sm transition-transform active:scale-98">
+                        <button @click="openSpotModal(null)" class="w-full bg-amber-400 hover:bg-amber-300 text-white font-bold py-3 rounded-2xl shadow-sm flex items-center justify-center space-x-2 text-sm transition-transform active:scale-98">
                             <span class="bg-white/20 rounded-full w-5 h-5 flex items-center justify-center text-xs">＋</span><span>新增一個行程</span>
                         </button>
 
-                        <div v-for="(spot, idx) in currentItinerary" :key="spot.id" :data-id="spot.id" class="spot-card p-4 relative group">
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="flex items-center space-x-3 flex-1">
-                                    <div class="handle text-slate-300 cursor-move py-1 px-1 hover:text-sky-400">⋮⋮</div>
-                                    <div class="relative"><select v-model="spot.category" class="category-select bg-sky-50 text-sky-600 text-xs font-bold py-1.5 pl-3 pr-8 rounded-full outline-none border border-transparent focus:border-sky-300 cursor-pointer"><option value="景點">🎡 景點</option><option value="交通">🚇 交通</option><option value="航班">✈️ 航班</option><option value="美食">🍜 美食</option><option value="購物">🛍️ 購物</option><option value="住宿">🏨 住宿</option><option value="娛樂">🎢 娛樂</option><option value="其他">🔖 其他</option></select></div>
+                        <div v-for="(spot, idx) in currentItinerary" :key="spot.id" :data-id="spot.id" @click="openSpotModal(spot, idx)" class="spot-card p-4 relative group cursor-pointer active:scale-98 transition-transform">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <div class="handle text-slate-300 cursor-grab px-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path></svg></div>
+                                    <span class="bg-sky-100 text-sky-600 text-[10px] px-2 py-1 rounded-md font-bold">{{ spot.category }}</span>
                                 </div>
-                                <button @click="removeSpot(idx)" class="text-slate-200 hover:text-red-400 text-lg px-2">×</button>
+                                <span class="text-xs text-slate-400 font-mono">編輯 ></span>
                             </div>
-                            <div class="space-y-2 pl-1"><input v-model="spot.location" class="text-lg font-bold text-slate-700 w-full outline-none placeholder-slate-300 bg-transparent" placeholder="輸入地點名稱..."><input v-model="spot.note" class="text-xs text-slate-400 w-full outline-none placeholder-slate-200 bg-transparent" placeholder="✎ 添加備註..."></div>
-                            <div class="flex space-x-3 mt-4 pt-3 border-t border-slate-50"><button class="action-btn flex-1 py-2 flex items-center justify-center space-x-1 hover:bg-sky-100 transition-colors"><span>🗺️</span> <span>地圖</span></button><button class="action-btn flex-1 py-2 flex items-center justify-center space-x-1 bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors"><span>📍</span> <span>導航</span></button></div>
+                            <h3 class="text-lg font-bold text-slate-700">{{ spot.location }}</h3>
+                            <p v-if="spot.note" class="text-xs text-slate-400 mt-1">{{ spot.note }}</p>
                         </div>
                     </div>
                 </div>
@@ -172,94 +129,56 @@
                 <div v-else-if="currentTab === 'ledger'" key="ledger" class="space-y-6 pb-24">
                     <div class="bg-white rounded-3xl p-5 shadow-sm border border-sky-100">
                         <div class="flex justify-between items-center mb-3"><h2 class="text-sm font-bold text-slate-500">成員設定</h2><span class="text-[10px] text-sky-400 bg-sky-50 px-2 py-1 rounded-full">點擊頭像換照</span></div>
-                        <div class="flex justify-between"><div v-for="m in members" :key="m.id" class="flex flex-col items-center w-14 group"><div @click="triggerUpload(m.id)" class="w-12 h-12 rounded-full border-2 border-slate-100 overflow-hidden cursor-pointer shadow-sm relative group-hover:border-sky-300 transition-all"><img :src="m.photo" class="w-full h-full object-cover"><div class="absolute inset-0 bg-black/20 hidden group-hover:flex items-center justify-center text-white text-[8px]">更換</div><input :id="'file-'+m.id" type="file" class="hidden" @change="e => updatePhoto(e, m.id)"></div><input v-model="m.name" class="w-full text-center text-[10px] mt-1 text-slate-600 bg-transparent outline-none border-b border-transparent focus:border-sky-300"></div></div>
+                        <div class="flex justify-between"><div v-for="m in members" :key="m.id" class="flex flex-col items-center w-16 group"><div @click="triggerUpload(m.id)" class="w-16 h-16 rounded-full border-2 border-slate-100 overflow-hidden cursor-pointer shadow-sm relative group-hover:border-sky-300 transition-all"><img :src="m.photo" class="w-full h-full object-cover"><div class="absolute inset-0 bg-black/20 hidden group-hover:flex items-center justify-center text-white text-[8px]">更換</div><input :id="'file-'+m.id" type="file" class="hidden" @change="e => updatePhoto(e, m.id)"></div><input v-model="m.name" class="w-full text-center text-[10px] mt-1 text-slate-600 bg-transparent outline-none border-b border-transparent focus:border-sky-300"></div></div>
                     </div>
 
                     <div class="settlement-card p-6 shadow-sm relative overflow-hidden">
-                        <div class="bg-sky-50 rounded-xl p-3 mb-5 border border-sky-100">
-                            <div class="flex justify-between items-center mb-2">
-                                <h3 class="text-xs font-bold text-sky-600 flex items-center"><span>匯率設定 (KRW ➜ TWD)</span></h3>
-                                <a href="https://rate.bot.com.tw/xrt?Lang=zh-TW" target="_blank" class="text-[10px] bg-sky-500 hover:bg-sky-400 px-3 py-1.5 rounded-full text-white flex items-center space-x-1 transition-colors shadow-sm"><span>🏦 查看臺銀牌告匯率</span></a>
-                            </div>
-                            <div class="flex items-center space-x-2"><span class="text-xs text-slate-500">1 韓元 ≈</span><input v-model.number="exchangeRate" type="number" step="0.0001" class="exchange-rate-input flex-1 py-1 px-2 outline-none focus:border-sky-400 transition-colors font-mono font-bold"><span class="text-xs text-slate-500">台幣</span></div>
+                        <div class="flex justify-between items-center border-b border-sky-100 pb-2 mb-2">
+                            <div class="flex items-center space-x-2"><h2 class="text-xs font-bold text-slate-600">分帳與總覽</h2><div class="flex items-center space-x-1 bg-slate-50 rounded px-1.5 py-0.5"><span class="text-[9px] text-slate-400">1₩=</span><input v-model.number="exchangeRate" type="number" step="0.0001" class="w-10 text-[9px] bg-transparent text-sky-600 font-bold outline-none border-b border-sky-100 text-center"></div></div><span class="text-[9px] text-slate-300">台幣計價</span>
                         </div>
-                        <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-2"><h2 class="text-sm font-bold tracking-widest text-slate-600">統一結算報表 (TWD)</h2></div>
-                        <div v-if="settlements.length > 0" class="space-y-3 mb-6"><div v-for="(s, idx) in settlements" :key="idx" class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100"><div class="flex items-center space-x-2"><span class="text-xs font-bold text-red-400">{{ s.fromName }}</span><span class="text-[10px] text-slate-300">➜</span><span class="text-xs font-bold text-green-500">{{ s.toName }}</span></div><div class="text-right"><span class="text-[9px] text-slate-400 block">應付</span><span class="font-mono font-bold text-sky-500 text-sm">NT$ {{ s.amount.toLocaleString() }}</span></div></div></div>
-                        <div v-else class="text-center text-xs text-slate-400 py-4">目前沒有需要結算的款項 🎉</div>
-
-                        <div class="mt-4 pt-4 border-t border-slate-100">
-                            <h3 class="text-[10px] font-bold text-slate-400 mb-3 text-center">個人總花費 (點擊頭像看明細)</h3>
-                            <div class="flex justify-between items-start space-x-2 px-1">
-                                <div v-for="summary in memberSummaries" :key="summary.id" @click="openMemberDetail(summary)" class="flex flex-col items-center flex-shrink-0 w-16 group cursor-pointer transition-transform active:scale-95">
-                                    <div class="w-10 h-10 rounded-full border border-slate-200 overflow-hidden mb-1 group-hover:border-sky-400 group-hover:shadow-md transition-all"><img :src="summary.photo" class="w-full h-full object-cover"></div><span class="text-[9px] text-slate-500 mb-0.5 truncate w-full text-center group-hover:text-sky-500">{{ summary.name }}</span><span class="text-[10px] font-mono font-bold text-sky-600 bg-sky-50 px-1.5 py-0.5 rounded-full group-hover:bg-sky-100">${{ Math.round(summary.spent).toLocaleString() }}</span>
-                                </div>
-                            </div>
+                        <div class="space-y-1 mb-3">
+                            <div v-if="settlements.length === 0" class="text-center text-[10px] text-slate-300 py-1">無須結算 🎉</div>
+                            <div v-for="(s, idx) in settlements" :key="idx" class="flex items-center justify-between text-[10px] text-slate-600 bg-slate-50 px-2 py-1 rounded"><span><strong class="text-red-400">{{ s.fromName }}</strong> <span class="text-slate-300">➜</span> <strong class="text-green-500">{{ s.toName }}</strong></span><span class="font-mono font-bold text-sky-500">${{ s.amount.toLocaleString() }}</span></div>
+                        </div>
+                        <div class="flex justify-between items-center pt-1 border-t border-sky-50">
+                            <div v-for="summary in memberSummaries" :key="summary.id" @click="openMemberDetail(summary)" class="flex flex-col items-center cursor-pointer active:scale-95 transition-transform w-12"><div class="w-6 h-6 rounded-full border border-slate-200 overflow-hidden mb-0.5"><img :src="summary.photo" class="w-full h-full object-cover"></div><span class="text-[8px] font-mono font-bold text-sky-600 bg-sky-50 px-1 rounded-full">${{ Math.round(summary.spent).toLocaleString() }}</span></div>
                         </div>
                     </div>
 
-                    <button @click="addExpense" class="w-full bg-amber-400 hover:bg-amber-300 text-white font-bold py-3 rounded-2xl shadow-sm flex items-center justify-center space-x-2 text-sm transition-transform active:scale-98">
+                    <button @click="openExpenseModal(null)" class="w-full bg-amber-400 hover:bg-amber-300 text-white font-bold py-3 rounded-2xl shadow-sm flex items-center justify-center space-x-2 text-sm transition-transform active:scale-98">
                         <span class="bg-white/20 rounded-full w-5 h-5 flex items-center justify-center text-xs">＋</span><span>新增一筆支出</span>
                     </button>
 
                     <div class="space-y-2 pb-2">
-                        <div class="flex justify-between items-end px-2"><h2 class="text-sky-500 font-bold tracking-widest">EXPENSE LIST</h2><span class="text-[10px] text-slate-400">依日期排序 (最新在前)</span></div>
-                        <transition-group name="list" tag="div" class="space-y-4">
-                            <div class="bg-white rounded-3xl p-5 shadow-sm border border-white space-y-4" v-for="exp in sortedExpenses" :key="exp.id">
+                        <div class="flex justify-between items-end px-2"><h2 class="text-sky-500 font-bold tracking-widest text-xs">EXPENSE LIST</h2><span class="text-[9px] text-slate-400">依日期排序</span></div>
+                        <transition-group name="list" tag="div" class="space-y-3">
+                            <div v-for="exp in sortedExpenses" :key="exp.id" @click="openExpenseModal(exp)" class="expense-card p-4 relative cursor-pointer">
                                 
-                                <div class="flex items-center justify-between">
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="info-pill bg-sky-50 text-sky-600 px-3">{{ categories.find(c => c.name === exp.category)?.icon }} {{ exp.category }}</div>
                                     <div class="flex items-center space-x-2">
-                                        <div class="relative flex-shrink-0 h-8">
-                                            <select v-model="exp.category" class="category-select h-full bg-sky-50 text-sky-600 text-[10px] font-bold pl-3 pr-8 rounded-full outline-none border border-transparent focus:border-sky-300 cursor-pointer">
-                                                <option v-for="cat in categories" :value="cat.name">{{ cat.icon }} {{ cat.name }}</option>
-                                            </select>
-                                        </div>
-                                        <button @click="promptAddCategory" class="h-8 w-8 flex items-center justify-center text-[12px] text-slate-300 hover:text-sky-400 bg-slate-50 rounded-full hover:bg-sky-50 transition-colors">＋</button>
-                                        <div class="h-8 flex items-center bg-slate-50 rounded-lg px-2">
-                                            <select v-model="exp.date" class="bg-transparent text-slate-500 text-[10px] font-bold outline-none"><option v-for="d in days" :value="d.full">{{ d.dateStr }}</option></select>
-                                        </div>
-                                    </div>
-                                    <div class="h-8 flex items-center bg-slate-50 rounded-lg px-2">
-                                        <input type="time" v-model="exp.time" class="bg-transparent text-slate-400 text-[10px] outline-none text-right">
+                                        <div class="info-pill bg-slate-50 text-slate-500 px-3">{{ days.find(d => d.full === exp.date)?.dateStr }}</div>
+                                        <div class="info-pill bg-slate-50 text-slate-400 px-3 font-mono">{{ exp.time }}</div>
                                     </div>
                                 </div>
                                 
-                                <input v-model="exp.item" class="w-full font-bold text-slate-700 outline-none border-b border-transparent focus:border-slate-200 transition-colors py-1" placeholder="請輸入支出項目...">
+                                <h3 class="text-lg font-bold text-slate-700 pl-1 mb-2">{{ exp.item }}</h3>
                                 
-                                <div class="flex items-center justify-between mt-1">
-                                    <div class="flex items-center bg-slate-50 rounded-full pl-2 pr-2 py-1 border border-slate-100 flex-shrink-0 h-9">
-                                        <span class="text-[9px] text-slate-400 mr-1 whitespace-nowrap">付款人</span>
-                                        <select v-model="exp.payerId" class="bg-transparent text-xs font-bold text-slate-600 outline-none w-16 text-center cursor-pointer">
-                                            <option v-for="m in members" :value="m.id">{{ m.name }}</option>
-                                        </select>
-                                    </div>
-                                    
-                                    <div class="flex items-center space-x-2 h-9">
-                                        <select v-model="exp.currency" class="currency-select-styled h-full bg-white border border-slate-200 rounded-lg pl-2 text-xs font-bold text-slate-500 outline-none focus:border-sky-300 cursor-pointer">
-                                            <option value="KRW">KRW</option>
-                                            <option value="TWD">TWD</option>
-                                        </select>
-                                        <input v-model.number="exp.amount" type="number" class="h-full w-32 text-right text-3xl font-black text-sky-500 outline-none placeholder-sky-100 bg-transparent" placeholder="0">
-                                    </div>
+                                <div class="flex justify-between items-center border-t border-slate-50 pt-2">
+                                    <div class="info-pill bg-slate-50 border border-slate-100 px-3 text-slate-500"><span class="text-[9px] mr-2 text-slate-400">付款人</span>{{ members.find(m => m.id === exp.payerId)?.name }}</div>
+                                    <div class="flex items-center space-x-2"><span class="text-xs font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-md">{{ exp.currency }}</span><span class="text-2xl font-black text-sky-500">{{ exp.amount.toLocaleString() }}</span></div>
                                 </div>
-                                <div v-if="exp.currency === 'KRW'" class="text-right text-[10px] text-slate-400 -mt-2 mb-1">≈ NT$ {{ Math.round(exp.amount * exchangeRate).toLocaleString() }}</div>
                                 
-                                <div class="flex items-center space-x-2 mt-2">
-                                    <input v-model="exp.note" class="flex-1 bg-slate-50 rounded-lg px-3 py-2 text-xs text-slate-500 outline-none placeholder-slate-300" placeholder="添加備註...">
-                                    <div class="relative group">
-                                        <button @click="triggerReceiptUpload(exp.id)" class="bg-slate-100 p-2 rounded-lg text-slate-400 hover:text-sky-500 hover:bg-sky-50 transition-colors">
-                                            <span v-if="!exp.receipt">📷</span>
-                                            <div v-else class="relative">
-                                                <img :src="exp.receipt" class="w-6 h-6 object-cover rounded-sm border border-slate-200 shadow-sm">
-                                                <div class="absolute inset-0 bg-black/10 rounded-sm group-hover:bg-black/20 transition-colors"></div>
+                                <div class="flex justify-between items-center mt-2 pl-1">
+                                    <div class="text-xs text-slate-400 italic truncate max-w-[120px]">{{ exp.note }}</div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-[9px] text-slate-300">分帳:</span>
+                                        <div class="flex -space-x-1">
+                                            <div v-for="pid in exp.participants" :key="pid" class="w-6 h-6 rounded-full border border-white overflow-hidden shadow-sm">
+                                                <img :src="members.find(m=>m.id===pid)?.photo" class="w-full h-full object-cover">
                                             </div>
-                                        </button>
-                                        <input :id="'receipt-'+exp.id" type="file" class="hidden" accept="image/*" @change="e => updateReceipt(e, exp.id)">
-                                        <button v-if="exp.receipt" @click.stop="previewReceipt(exp.receipt)" class="absolute -top-2 -right-2 bg-slate-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] shadow-sm z-10">🔍</button>
+                                        </div>
                                     </div>
-                                </div>
-
-                                <div class="flex gap-2 justify-end pt-2 border-t border-slate-50 mt-2">
-                                    <div v-for="m in members" :key="m.id" @click="toggleParticipant(exp, m.id)" class="w-8 h-8 rounded-full border-2 overflow-hidden transition-all cursor-pointer relative" :class="exp.participants.includes(m.id) ? 'border-sky-400 opacity-100 scale-105 shadow-md' : 'border-slate-100 opacity-30 grayscale scale-95'"><img :src="m.photo" class="w-full h-full object-cover"><div v-if="!exp.participants.includes(m.id)" class="absolute inset-0 bg-white/50"></div></div>
                                 </div>
                             </div>
                         </transition-group>
@@ -268,7 +187,7 @@
             </transition>
         </main>
 
-        <nav class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 bg-white rounded-full shadow-xl p-2 flex items-center space-x-1 mb-2 safe-bottom w-[90%] max-w-sm justify-between">
+        <nav class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40 bg-white rounded-full shadow-xl p-2 flex items-center space-x-1 mb-2 safe-bottom w-[90%] max-w-sm justify-between">
             <button @click="currentTab = 'itinerary'" :class="currentTab === 'itinerary' ? 'text-sky-500' : 'text-slate-400'" class="flex-1 flex flex-col items-center py-1 px-2 rounded-full transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg><span class="text-[10px] font-medium">行程</span></button>
             <button class="flex-1 flex flex-col items-center py-1 px-2 rounded-full text-slate-300 cursor-not-allowed"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg><span class="text-[10px] font-medium">天氣</span></button>
             <button @click="currentTab = 'ledger'" :class="currentTab === 'ledger' ? 'text-sky-500' : 'text-slate-400'" class="flex-1 flex flex-col items-center py-1 px-2 rounded-full transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><span class="text-[10px] font-medium">記帳</span></button>
@@ -276,20 +195,49 @@
             <button @click="currentTab = 'map'" :class="currentTab === 'map' ? 'text-sky-500' : 'text-slate-400'" class="flex-1 flex flex-col items-center py-1 px-2 rounded-full transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 7m0 13V7" /></svg><span class="text-[10px] font-medium">指南</span></button>
         </nav>
 
-        <div v-if="showShoppingModal" class="fixed inset-0 z-50 bg-sky-900/30 backdrop-blur-sm flex items-center justify-center p-4">
-            <div class="bg-white w-full max-w-xs rounded-[2rem] p-6 shadow-2xl flex flex-col max-h-[70vh]">
-                <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg text-slate-700 tracking-wide">SHOPPING LIST</h3><button @click="showShoppingModal = false" class="text-slate-300 text-xl">✕</button></div>
-                <div class="mb-4 pb-2 border-b border-slate-50">
-                    <div class="flex justify-between items-start px-1">
-                        <div v-for="m in members" :key="m.id" @click="activeShopMember = m.id" class="flex flex-col items-center cursor-pointer transition-all relative w-12 group">
-                            <div class="w-10 h-10 rounded-full border-2 overflow-hidden transition-all" :class="activeShopMember === m.id ? 'border-sky-400 scale-110 shadow-md ring-2 ring-sky-100' : 'border-slate-100 opacity-60 grayscale'">
-                                <img :src="m.photo" class="w-full h-full object-cover">
-                            </div>
-                            <div v-if="getMemberPendingCount(m.id) > 0" class="absolute -top-1 -right-1 bg-red-400 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center border-2 border-white">{{ getMemberPendingCount(m.id) }}</div>
-                            <span class="text-[9px] mt-1 font-bold truncate w-full text-center" :class="activeShopMember === m.id ? 'text-sky-500' : 'text-slate-300'">{{ m.name }}</span>
-                        </div>
+        <div v-if="showExpenseModal" class="modal-overlay" @click.self="showExpenseModal = false">
+            <div class="modal-content space-y-4">
+                <h3 class="text-lg font-bold text-slate-700 text-center">{{ editingExpense.id ? '編輯支出' : '新增支出' }}</h3>
+                <div class="flex space-x-2">
+                    <div class="relative w-1/3">
+                        <select v-model="editingExpense.category" class="category-select bg-sky-50 text-sky-600 text-xs font-bold px-3 py-2 rounded-lg outline-none w-full"><option v-for="cat in categories" :value="cat.name">{{ cat.icon }} {{ cat.name }}</option></select>
                     </div>
+                    <button @click="promptAddCategory" class="text-slate-300 hover:text-sky-400 text-lg px-2">+</button>
+                    
+                    <select v-model="editingExpense.date" class="bg-slate-50 text-slate-600 text-xs font-bold px-2 py-2 rounded-lg outline-none flex-1"><option v-for="d in days" :value="d.full">{{ d.dateStr }}</option></select>
+                    <input type="time" v-model="editingExpense.time" class="bg-slate-50 text-slate-600 text-xs px-2 py-2 rounded-lg outline-none w-20 text-center">
                 </div>
+                <input v-model="editingExpense.item" class="w-full text-lg font-bold border-b-2 border-slate-100 py-2 outline-none focus:border-sky-400 text-center placeholder-slate-300" placeholder="消費項目名稱">
+                <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl">
+                    <div class="flex flex-col items-start"><span class="text-[10px] text-slate-400 mb-1">付款人</span><select v-model="editingExpense.payerId" class="bg-white border border-slate-200 text-xs font-bold py-1 px-2 rounded outline-none"><option v-for="m in members" :value="m.id">{{ m.name }}</option></select></div>
+                    <div class="flex items-end space-x-2"><select v-model="editingExpense.currency" class="bg-transparent text-xs font-bold text-slate-400 outline-none mb-1"><option>KRW</option><option>TWD</option></select><input v-model.number="editingExpense.amount" type="number" class="bg-transparent text-2xl font-black text-sky-500 w-28 text-right outline-none" placeholder="0"></div>
+                </div>
+                <div>
+                    <p class="text-[10px] text-slate-400 mb-2">分攤成員 (點擊切換)</p>
+                    <div class="flex space-x-2"><div v-for="m in members" :key="m.id" @click="toggleEditParticipant(m.id)" class="w-8 h-8 rounded-full border-2 overflow-hidden transition-all" :class="editingExpense.participants.includes(m.id) ? 'border-sky-400 opacity-100' : 'border-slate-100 opacity-30 grayscale'"><img :src="m.photo" class="w-full h-full object-cover"></div></div>
+                </div>
+                <div class="flex space-x-2">
+                    <input v-model="editingExpense.note" class="flex-1 bg-slate-50 rounded-lg px-3 text-xs outline-none" placeholder="備註...">
+                    <div class="relative w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center cursor-pointer overflow-hidden group"><img v-if="editingExpense.receipt" :src="editingExpense.receipt" class="w-full h-full object-cover"><span v-else class="text-lg">📷</span><input type="file" class="absolute inset-0 opacity-0" accept="image/*" @change="handleReceiptUpload"></div>
+                </div>
+                <button @click="saveExpense" class="w-full bg-sky-500 text-white font-bold py-3 rounded-xl shadow-lg active:scale-95 transition-transform">儲存</button>
+            </div>
+        </div>
+
+        <div v-if="showSpotModal" class="modal-overlay" @click.self="showSpotModal = false">
+            <div class="modal-content space-y-4">
+                <h3 class="text-lg font-bold text-slate-700 text-center">{{ editingSpot.id ? '編輯行程' : '新增行程' }}</h3>
+                <div class="flex space-x-2"><select v-model="editingSpot.category" class="bg-sky-50 text-sky-600 text-xs font-bold px-3 py-2 rounded-lg outline-none w-1/2"><option v-for="cat in categories" :value="cat.name">{{ cat.icon }} {{ cat.name }}</option></select></div>
+                <input v-model="editingSpot.location" class="w-full text-lg font-bold border-b-2 border-slate-100 py-2 outline-none focus:border-sky-400 placeholder-slate-300" placeholder="地點名稱">
+                <textarea v-model="editingSpot.note" class="w-full bg-slate-50 rounded-xl p-3 text-xs outline-none h-20 resize-none" placeholder="備註 (如: 營業時間、預約號)"></textarea>
+                <div class="flex space-x-2"><button v-if="editingSpot.id" @click="deleteSpot" class="flex-1 bg-red-100 text-red-500 font-bold py-3 rounded-xl">刪除</button><button @click="saveSpot" class="flex-1 bg-sky-500 text-white font-bold py-3 rounded-xl shadow-lg">儲存</button></div>
+            </div>
+        </div>
+
+        <div v-if="showShoppingModal" class="modal-overlay" @click.self="showShoppingModal = false">
+            <div class="modal-content max-w-xs flex flex-col h-[60vh]">
+                <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg text-slate-700 tracking-wide">SHOPPING LIST</h3><button @click="showShoppingModal = false" class="text-slate-300 text-xl">✕</button></div>
+                <div class="mb-4 pb-2 border-b border-slate-50"><div class="flex justify-between items-start px-1"><div v-for="m in members" :key="m.id" @click="activeShopMember = m.id" class="flex flex-col items-center cursor-pointer transition-all relative w-12 group"><div class="w-10 h-10 rounded-full border-2 overflow-hidden transition-all" :class="activeShopMember === m.id ? 'border-sky-400 scale-110 shadow-md ring-2 ring-sky-100' : 'border-slate-100 opacity-60 grayscale'"><img :src="m.photo" class="w-full h-full object-cover"></div><div v-if="getMemberPendingCount(m.id) > 0" class="absolute -top-1 -right-1 bg-red-400 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center border-2 border-white">{{ getMemberPendingCount(m.id) }}</div><span class="text-[9px] mt-1 font-bold truncate w-full text-center" :class="activeShopMember === m.id ? 'text-sky-500' : 'text-slate-300'">{{ m.name }}</span></div></div></div>
                 <div class="flex-1 overflow-y-auto space-y-2 mb-4 hide-scrollbar"><div v-if="currentMemberShoppingList.length === 0" class="text-center py-8 text-slate-300 text-xs">尚無 {{ members.find(m => m.id === activeShopMember)?.name }} 的清單</div><div v-for="(item, idx) in currentMemberShoppingList" :key="item.id" class="flex items-center space-x-3 group"><input type="checkbox" v-model="item.done" class="rounded text-sky-400 focus:ring-sky-300 w-5 h-5 border-slate-300"><input v-model="item.text" class="flex-1 outline-none text-sm border-b border-transparent focus:border-slate-200 py-1 transition-colors bg-transparent text-slate-600 font-medium" :class="{'line-through text-slate-300': item.done}"><button @click="removeShopItem(item.id)" class="text-red-200 hover:text-red-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity">×</button></div></div>
                 <div class="flex space-x-2 mt-auto"><input v-model="newShopItem" :placeholder="`幫 ${members.find(m => m.id === activeShopMember)?.name} 新增...`" @keyup.enter="addShopItem" class="flex-1 bg-slate-50 px-4 py-3 rounded-2xl text-sm outline-none border border-transparent focus:border-sky-200 transition-all"><button @click="addShopItem" class="bg-sky-400 text-white px-4 rounded-2xl font-bold shadow-lg shadow-sky-200/50 active:scale-95 transition-transform">＋</button></div>
             </div>
@@ -299,18 +247,8 @@
             <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl relative max-h-[80vh] flex flex-col">
                 <button @click="showMemberDetailModal = false" class="absolute top-4 right-4 text-slate-400 text-xl">✕</button>
                 <div class="text-center mb-6"><div class="w-16 h-16 rounded-full border-2 border-sky-100 mx-auto overflow-hidden mb-2 shadow-sm"><img :src="selectedMember?.photo" class="w-full h-full object-cover"></div><h3 class="text-lg font-bold text-slate-700">{{ selectedMember?.name }} 的消費明細</h3><p class="text-xs text-sky-500 font-mono mt-1">總計: NT$ {{ Math.round(selectedMemberTotal).toLocaleString() }}</p></div>
-                <div class="flex-1 overflow-y-auto space-y-3 hide-scrollbar">
-                    <div v-for="exp in selectedMemberExpenses" :key="exp.id" class="flex justify-between items-start border-b border-slate-50 pb-2">
-                        <div><div class="text-xs font-bold text-slate-600">{{ exp.item }}</div><div class="text-[10px] text-slate-400">{{ exp.date }} · {{ exp.time }} · {{ exp.category }}</div></div>
-                        <div class="text-right"><div class="text-xs font-bold text-slate-700">NT$ {{ Math.round(getShareAmount(exp)).toLocaleString() }}</div><div v-if="exp.currency === 'KRW'" class="text-[9px] text-slate-300">(₩ {{ Math.round(exp.amount / exp.participants.length).toLocaleString() }})</div></div>
-                    </div>
-                    <div v-if="selectedMemberExpenses.length === 0" class="text-center text-xs text-slate-300 py-10">暫無消費紀錄</div>
-                </div>
+                <div class="flex-1 overflow-y-auto space-y-3 hide-scrollbar"><div v-for="exp in selectedMemberExpenses" :key="exp.id" class="flex justify-between items-start border-b border-slate-50 pb-2"><div><div class="text-xs font-bold text-slate-600">{{ exp.item }}</div><div class="text-[10px] text-slate-400">{{ exp.date }} · {{ exp.time }} · {{ exp.category }}</div></div><div class="text-right"><div class="text-xs font-bold text-slate-700">NT$ {{ Math.round(getShareAmount(exp)).toLocaleString() }}</div><div v-if="exp.currency === 'KRW'" class="text-[9px] text-slate-300">(₩ {{ Math.round(exp.amount / exp.participants.length).toLocaleString() }})</div></div></div><div v-if="selectedMemberExpenses.length === 0" class="text-center text-xs text-slate-300 py-10">暫無消費紀錄</div></div>
             </div>
-        </div>
-
-        <div v-if="previewImageUrl" class="img-modal" @click="previewImageUrl = null">
-            <img :src="previewImageUrl" class="max-w-[90%] max-h-[90%] rounded-lg shadow-2xl">
         </div>
 
     </div>
@@ -323,33 +261,39 @@
                 const currentTab = ref('itinerary');
                 const activeDay = ref(0);
                 const showShoppingModal = ref(false);
+                const showExpenseModal = ref(false);
+                const showSpotModal = ref(false);
+                const editingExpense = ref({});
+                const editingSpot = ref({});
+                const editingSpotIdx = ref(-1);
                 const activeShopMember = ref(1);
                 const exchangeRate = ref(0.0245); 
                 const showMemberDetailModal = ref(false);
                 const selectedMemberId = ref(null);
-                const previewImageUrl = ref(null);
                 
-                const categories = ref([
-                    { name: '飲食', icon: '🍜' },
-                    { name: '住宿', icon: '🏨' },
-                    { name: '交通', icon: '🚇' },
-                    { name: '購物', icon: '🛍️' },
-                    { name: '娛樂', icon: '🎡' },
-                    { name: '其他', icon: '🔖' }
-                ]);
-
+                const categories = ref([{ name: '飲食', icon: '🍜' }, { name: '住宿', icon: '🏨' }, { name: '交通', icon: '🚇' }, { name: '購物', icon: '🛍️' }, { name: '娛樂', icon: '🎡' }, { name: '其他', icon: '🔖' }]);
                 const days = [{ dateStr: '1/30', full: '2026-01-30' }, { dateStr: '1/31', full: '2026-01-31' }, { dateStr: '2/01', full: '2026-02-01' }, { dateStr: '2/02', full: '2026-02-02' }, { dateStr: '2/03', full: '2026-02-03' }, { dateStr: '2/04', full: '2026-02-04' }, { dateStr: '2/05', full: '2026-02-05' }];
-                const itineraries = ref({ 0: [{ id: 1, category: '住宿', location: 'Momoho Hongdae', note: '' }] });
-                const currentItinerary = computed(() => { if (!itineraries.value[activeDay.value]) itineraries.value[activeDay.value] = []; return itineraries.value[activeDay.value]; });
-                const addSpot = () => { const id = Date.now(); currentItinerary.value.push({ id, category: '景點', location: '', note: '' }); nextTick(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })); };
-                const removeSpot = (idx) => currentItinerary.value.splice(idx, 1);
-                const initSortable = () => { const el = document.getElementById('itinerary-list'); if(el) Sortable.create(el, { handle: '.handle', animation: 150, ghostClass: 'sortable-ghost', dragClass: 'sortable-drag' }); };
+                const members = ref([{ id: 1, name: '我', photo: 'https://i.pravatar.cc/150?u=1' }, { id: 2, name: '旅伴A', photo: 'https://i.pravatar.cc/150?u=2' }, { id: 3, name: '旅伴B', photo: 'https://i.pravatar.cc/150?u=3' }, { id: 4, name: '旅伴C', photo: 'https://i.pravatar.cc/150?u=4' }, { id: 5, name: '旅伴D', photo: 'https://i.pravatar.cc/150?u=5' }]);
+                
+                const itineraries = ref({
+                    0: [{ id: 1, category: '住宿', location: 'Momoho Hongdae', note: '' }],
+                    1: [{ id: 2, category: '景點', location: '弘大', note: '' }, { id: 3, category: '住宿', location: 'Momoho Hongdae', note: '' }],
+                    2: [{ id: 4, category: '娛樂', location: '一日遊', note: '' }, { id: 5, category: '住宿', location: 'Momoho Hongdae', note: '' }],
+                    3: [{ id: 6, category: '娛樂', location: '康島玩雪雪橇', note: '10:00~17:00' }, { id: 7, category: '飲食', location: 'beton', note: '' }, { id: 8, category: '飲食', location: 'ODE', note: '' }, { id: 9, category: '景點', location: '聖水', note: '' }, { id: 10, category: '景點', location: '經紀公司', note: '' }, { id: 11, category: '景點', location: '星空圖書館', note: '' }, { id: 12, category: '飲食', location: 'Puradak炸雞', note: '' }, { id: 13, category: '住宿', location: 'Momoho Hongdae', note: '' }],
+                    4: [{ id: 14, category: '飲食', location: '廣藏市場', note: '' }, { id: 15, category: '購物', location: '明洞', note: '' }, { id: 16, category: '住宿', location: 'Momoho Hongdae', note: '' }],
+                    5: [{ id: 17, category: '其他', location: '醫美', note: '' }, { id: 18, category: '購物', location: '東大門', note: '' }, { id: 19, category: '娛樂', location: '溜冰', note: '' }, { id: 20, category: '住宿', location: 'Momoho Hongdae', note: '' }],
+                    6: [{ id: 21, category: '住宿', location: 'Momoho Hongdae', note: '' }]
+                });
+                const currentItinerary = computed(() => itineraries.value[activeDay.value] || []);
+                
+                const expenses = ref([{ id: 1, date: '2026-01-30', time: '18:30', category: '飲食', item: '第一餐烤肉', amount: 85000, currency: 'KRW', payerId: 1, participants: [1,2,3,4,5], note: '', receipt: null }]);
+                const sortedExpenses = computed(() => [...expenses.value].sort((a,b) => b.id - a.id));
 
-                const preTripTodos = ref([{ id: 1, text:'購買 T-Money 卡', completedBy: [] }, { id: 2, text:'下載 Naver Map', completedBy: [] }]);
+                const preTripTodos = ref([{ id:1, text:'買網卡', completedBy:[]}]);
                 const newTodo = ref('');
-                const addTodo = () => { if(newTodo.value) { preTripTodos.value.push({ id: Date.now(), text: newTodo.value, completedBy: [] }); newTodo.value=''; }};
+                const addTodo = () => { if(newTodo.value) preTripTodos.value.push({id:Date.now(), text:newTodo.value, completedBy:[]}); newTodo.value=''; };
                 const removeTodo = (idx) => preTripTodos.value.splice(idx, 1);
-                const toggleTodoStatus = (todo, memberId) => { const idx = todo.completedBy.indexOf(memberId); if (idx > -1) todo.completedBy.splice(idx, 1); else todo.completedBy.push(memberId); };
+                const toggleTodoStatus = (todo, uid) => { const idx = todo.completedBy.indexOf(uid); idx > -1 ? todo.completedBy.splice(idx,1) : todo.completedBy.push(uid); };
 
                 const shoppingList = ref([{ id: 1, text: 'Olive Young 面膜', done: false, ownerId: 1 }, { id: 2, text: 'Gentle Monster 墨鏡', done: false, ownerId: 1 }]);
                 const newShopItem = ref('');
@@ -359,45 +303,44 @@
                 const getMemberPendingCount = (memberId) => shoppingList.value.filter(i => i.ownerId === memberId && !i.done).length;
                 const totalShoppingCount = computed(() => shoppingList.value.filter(i => !i.done).length);
 
-                const members = ref([
-                    { id: 1, name: '我', photo: 'https://i.pravatar.cc/150?u=1' },
-                    { id: 2, name: '旅伴A', photo: 'https://i.pravatar.cc/150?u=2' },
-                    { id: 3, name: '旅伴B', photo: 'https://i.pravatar.cc/150?u=3' },
-                    { id: 4, name: '旅伴C', photo: 'https://i.pravatar.cc/150?u=4' },
-                    { id: 5, name: '旅伴D', photo: 'https://i.pravatar.cc/150?u=5' }
-                ]);
                 const triggerUpload = (id) => document.getElementById(`file-${id}`).click();
                 const updatePhoto = (e, id) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (evt) => { const m = members.value.find(x => x.id === id); if(m) m.photo = evt.target.result; }; reader.readAsDataURL(file); } };
 
-                const expenses = ref([{ id: 1700000000000, date: '2026-01-30', time: '18:30', category: '飲食', item: '第一餐烤肉', amount: 85000, currency: 'KRW', payerId: 1, participants: [1,2,3,4,5], note: '', receipt: null }]);
-                const sortedExpenses = computed(() => { return [...expenses.value].sort((a, b) => { if (a.date < b.date) return 1; if (a.date > b.date) return -1; return b.id - a.id; }); });
-                
-                const addExpense = () => { 
-                    const now = new Date();
-                    const timeStr = now.toTimeString().slice(0,5);
-                    expenses.value.push({ id: Date.now(), date: days[0].full, time: timeStr, category: '飲食', item: '', amount: null, currency: 'KRW', payerId: 1, participants: [1, 2, 3, 4, 5], note: '', receipt: null }); 
+                // Spot Logic
+                const openSpotModal = (spot, idx = -1) => {
+                    editingSpotIdx.value = idx;
+                    if (spot) { editingSpot.value = { ...spot }; } 
+                    else { editingSpot.value = { id: null, category: '景點', location: '', note: '' }; }
+                    showSpotModal.value = true;
                 };
-                
-                const promptAddCategory = () => { const newCat = prompt("請輸入新分類名稱:"); if(newCat && !categories.value.find(c=>c.name===newCat)) { categories.value.push({ name: newCat, icon: '🔖' }); } };
-                const toggleParticipant = (exp, uid) => { const idx = exp.participants.indexOf(uid); idx > -1 ? exp.participants.splice(idx,1) : exp.participants.push(uid); };
+                const saveSpot = () => {
+                    if (!itineraries.value[activeDay.value]) itineraries.value[activeDay.value] = [];
+                    if (editingSpot.value.id) { if (editingSpotIdx.value > -1) { itineraries.value[activeDay.value][editingSpotIdx.value] = { ...editingSpot.value }; } } 
+                    else { editingSpot.value.id = Date.now(); itineraries.value[activeDay.value].push({ ...editingSpot.value }); }
+                    showSpotModal.value = false;
+                };
+                const deleteSpot = () => { if (editingSpotIdx.value > -1) { itineraries.value[activeDay.value].splice(editingSpotIdx.value, 1); } showSpotModal.value = false; };
 
-                const triggerReceiptUpload = (id) => document.getElementById(`receipt-${id}`).click();
-                const updateReceipt = (e, id) => { 
-                    const file = e.target.files[0]; 
-                    if(file) { 
-                        const reader = new FileReader(); 
-                        reader.onload = (evt) => { 
-                            const exp = expenses.value.find(x => x.id === id); 
-                            if(exp) exp.receipt = evt.target.result; 
-                        }; 
-                        reader.readAsDataURL(file); 
-                    } 
+                // Expense Logic
+                const openExpenseModal = (exp) => {
+                    if (exp) { editingExpense.value = JSON.parse(JSON.stringify(exp)); } 
+                    else {
+                        const now = new Date(); const timeStr = now.toTimeString().slice(0,5);
+                        editingExpense.value = { id: null, date: days[0].full, time: timeStr, category: '飲食', item: '', amount: null, currency: 'KRW', payerId: 1, participants: [1,2,3,4,5], note: '', receipt: null };
+                    }
+                    showExpenseModal.value = true;
                 };
-                const previewReceipt = (url) => { previewImageUrl.value = url; };
+                const promptAddCategory = () => { const newCat = prompt("請輸入新分類名稱:"); if(newCat && !categories.value.find(c=>c.name===newCat)) { categories.value.push({ name: newCat, icon: '🔖' }); } };
+                const toggleEditParticipant = (uid) => { const idx = editingExpense.value.participants.indexOf(uid); if (idx > -1) editingExpense.value.participants.splice(idx, 1); else editingExpense.value.participants.push(uid); };
+                const handleReceiptUpload = (e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (evt) => editingExpense.value.receipt = evt.target.result; reader.readAsDataURL(file); } };
+                const saveExpense = () => {
+                    if (editingExpense.value.id) { const idx = expenses.value.findIndex(e => e.id === editingExpense.value.id); if (idx > -1) expenses.value[idx] = { ...editingExpense.value }; } 
+                    else { editingExpense.value.id = Date.now(); expenses.value.push({ ...editingExpense.value }); }
+                    showExpenseModal.value = false;
+                };
 
                 const getUnifiedBalances = () => {
-                    const balances = {};
-                    members.value.forEach(m => balances[m.id] = 0);
+                    const balances = {}; members.value.forEach(m => balances[m.id] = 0);
                     expenses.value.filter(e => e.amount).forEach(exp => {
                         const amountInTwd = exp.currency === 'KRW' ? (exp.amount * exchangeRate.value) : exp.amount;
                         const splitAmount = amountInTwd / exp.participants.length;
@@ -406,27 +349,20 @@
                     });
                     return balances;
                 };
-
                 const settlements = computed(() => {
                     const bal = getUnifiedBalances();
                     let debtors = [], creditors = [];
-                    for (const [id, amount] of Object.entries(bal)) {
-                        if (amount < -1) debtors.push({ id: parseInt(id), amount: amount });
-                        if (amount > 1) creditors.push({ id: parseInt(id), amount: amount });
-                    }
-                    debtors.sort((a, b) => a.amount - b.amount);
-                    creditors.sort((a, b) => b.amount - a.amount);
+                    for (const [id, amount] of Object.entries(bal)) { if (amount < -1) debtors.push({ id: parseInt(id), amount: amount }); if (amount > 1) creditors.push({ id: parseInt(id), amount: amount }); }
+                    debtors.sort((a, b) => a.amount - b.amount); creditors.sort((a, b) => b.amount - a.amount);
                     const result = []; let i = 0; let j = 0;
                     while (i < debtors.length && j < creditors.length) {
                         const debtor = debtors[i]; const creditor = creditors[j];
                         const amount = Math.min(Math.abs(debtor.amount), creditor.amount);
                         result.push({ from: debtor.id, to: creditor.id, fromName: members.value.find(m => m.id === debtor.id)?.name, toName: members.value.find(m => m.id === creditor.id)?.name, amount: Math.round(amount) });
-                        debtor.amount += amount; creditor.amount -= amount;
-                        if (Math.abs(debtor.amount) < 1) i++; if (creditor.amount < 1) j++;
+                        debtor.amount += amount; creditor.amount -= amount; if (Math.abs(debtor.amount) < 1) i++; if (creditor.amount < 1) j++;
                     }
                     return result;
                 });
-
                 const memberSummaries = computed(() => {
                     return members.value.map(m => {
                         let spent = 0;
@@ -440,31 +376,58 @@
 
                 const openMemberDetail = (member) => { selectedMemberId.value = member.id; showMemberDetailModal.value = true; };
                 const selectedMember = computed(() => members.value.find(m => m.id === selectedMemberId.value));
-                const selectedMemberExpenses = computed(() => {
-                    if (!selectedMemberId.value) return [];
-                    return sortedExpenses.value.filter(exp => exp.participants.includes(selectedMemberId.value));
-                });
+                const selectedMemberExpenses = computed(() => { if (!selectedMemberId.value) return []; return sortedExpenses.value.filter(exp => exp.participants.includes(selectedMemberId.value)); });
                 const getShareAmount = (exp) => { const amountInTwd = exp.currency === 'KRW' ? (exp.amount * exchangeRate.value) : exp.amount; return amountInTwd / exp.participants.length; };
                 const selectedMemberTotal = computed(() => selectedMemberExpenses.value.reduce((sum, exp) => sum + getShareAmount(exp), 0));
 
+                // Initialize Sortable
+                watch(currentTab, (val) => {
+                    if (val === 'itinerary') {
+                        nextTick(() => {
+                            const el = document.getElementById('itinerary-list');
+                            if(el) Sortable.create(el, { handle: '.handle', animation: 150, onEnd: (evt) => {
+                                const item = itineraries.value[activeDay.value].splice(evt.oldIndex, 1)[0];
+                                itineraries.value[activeDay.value].splice(evt.newIndex, 0, item);
+                            }});
+                        });
+                    }
+                    if(val === 'map') nextTick(initMap);
+                });
+                watch(activeDay, () => {
+                    if(currentTab.value === 'itinerary') {
+                        nextTick(() => {
+                            const el = document.getElementById('itinerary-list');
+                            if(el) Sortable.create(el, { handle: '.handle', animation: 150, onEnd: (evt) => {
+                                const item = itineraries.value[activeDay.value].splice(evt.oldIndex, 1)[0];
+                                itineraries.value[activeDay.value].splice(evt.newIndex, 0, item);
+                            }});
+                        });
+                    }
+                });
+
                 let map;
                 const initMap = () => { if(map) return; map = L.map('map').setView([37.5665, 126.9780], 13); L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map); };
-                watch(currentTab, (val) => { if(val === 'itinerary') nextTick(initSortable); if(val === 'map') nextTick(initMap); });
-                watch(activeDay, () => { if(currentTab.value === 'itinerary') nextTick(initSortable); });
-                onMounted(() => { initSortable(); });
+                onMounted(() => {
+                    const el = document.getElementById('itinerary-list');
+                    if(el) Sortable.create(el, { handle: '.handle', animation: 150, onEnd: (evt) => {
+                        const item = itineraries.value[activeDay.value].splice(evt.oldIndex, 1)[0];
+                        itineraries.value[activeDay.value].splice(evt.newIndex, 0, item);
+                    }});
+                });
 
                 return {
                     currentTab, activeDay, days, itineraries, currentItinerary,
-                    preTripTodos, newTodo, addTodo, removeTodo, toggleTodoStatus, 
-                    showShoppingModal, activeShopMember, currentMemberShoppingList, newShopItem, addShopItem, removeShopItem, getMemberPendingCount, totalShoppingCount,
-                    addSpot, removeSpot, members, triggerUpload, updatePhoto, expenses, sortedExpenses, addExpense, toggleParticipant,
-                    exchangeRate, settlements, memberSummaries,
-                    categories, promptAddCategory, showMemberDetailModal, openMemberDetail, selectedMember, selectedMemberExpenses, getShareAmount, selectedMemberTotal,
-                    triggerReceiptUpload, updateReceipt, previewReceipt, previewImageUrl
+                    preTripTodos, newTodo, addTodo, toggleTodoStatus, removeTodo,
+                    showShoppingModal, totalShoppingCount,
+                    showSpotModal, openSpotModal, editingSpot, saveSpot, deleteSpot,
+                    showExpenseModal, openExpenseModal, editingExpense, saveExpense, toggleEditParticipant, handleReceiptUpload,
+                    expenses, sortedExpenses, members, categories, memberSummaries, exchangeRate, settlements,
+                    showMemberDetailModal, openMemberDetail, selectedMember, selectedMemberExpenses, getShareAmount, selectedMemberTotal,
+                    triggerUpload, updatePhoto, activeShopMember, currentMemberShoppingList, newShopItem, addShopItem, removeShopItem, getMemberPendingCount,
+                    promptAddCategory
                 };
             }
         }).mount('#app');
     </script>
 </body>
 </html>
-
